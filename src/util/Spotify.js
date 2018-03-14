@@ -2,30 +2,61 @@ const client_id = '280cda0ac3b246a894918a46d44f0439';
 const client_secret = 'ebe84191ecd54cd5ad2a18f8d5515cba';
 const redirect_uri = 'http://localhost:3000';
 
-
-var accessToken = '';
+var request = require('request');
 export var Spotify = {
+  accessToken: '',
   getAccessToken() {
-    if (accessToken !== '') {
-      console.log('Token already existing: ' + accessToken);
+    if (Spotify.accessToken !== '') {
+      alert('Token already existing: ' + Spotify.accessToken);
+    } else if (document.URL.match(/access_token=([^&]*)/) !== null) {
+        Spotify.accessToken = document.URL.match(/(#access_token[^&]*)/)[0];
+        Spotify.accessToken = Spotify.accessToken.substring(14,Spotify.accessToken.length);
+        var expiresIn = document.URL.match(/expires_in=([^&]*)/);
+        expiresIn = expiresIn[1]
+        window.setTimeout(() => Spotify.accessToken = '', expiresIn * 1000);
+        alert('Current token: ' + Spotify.accessToken + ', will expire in ' + expiresIn + 'ms');
+        window.history.pushState('Access Token', null, '/');
     } else {
-      var urlToGet = 'https://accounts.spotify.com/authorize'
-      + '?'
-      + 'client_id=' + client_id + '&'
-      + 'response_type=token&'
-      + 'redirect_uri=' + redirect_uri
-      alert('will get: ' + urlToGet);
-      fetch(
-        urlToGet
-      ).then(
-        response => {
-          alert(Object.getOwnPropertyNames(response));
-        },
-        errorMessage => {
-          alert(Object.getOwnPropertyNames(errorMessage));
-          alert(errorMessage.message);
-        }
-      );
+      var urlToGet = 'https://accounts.spotify.com/authorize?'
+      + 'client_id=' + client_id
+      + '&response_type=token'
+      + '&redirect_uri=' + redirect_uri;
+      window.location = urlToGet;
     }
+  },
+  search(term) {
+    var targetUrl = 'https://api.spotify.com/v1/search?type=track&q=' + term;
+    var result = fetch(
+      targetUrl, {
+        headers: {Authorization: `Bearer ${Spotify.accessToken}`}
+      }
+    ).then(
+      response => {
+        if(response.ok) {
+          return response.json();
+        }
+      },
+      error => {console.log(error)}
+    ).then(
+      jsonResponse => {
+        var dataArray = [];
+        if (jsonResponse.tracks.items.length === 0) {
+          alert('No result found!');
+        } else {
+          jsonResponse.tracks.items.map(element => {
+            var track = {};
+            track.id = element.id;
+            track.name = element.name;
+            track.artist = element.artists[0].name;
+            track.album = element.album.name;
+            track.URI = element.uri;
+            dataArray.push(track);
+          });
+        }
+        alert(dataArray);
+        return dataArray;
+      }
+    );
+    return result;
   }
 };

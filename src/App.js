@@ -18,6 +18,7 @@ class App extends Component {
     this.updatePlaylistName = this.updatePlaylistName.bind(this);
     this.savePlaylist = this.savePlaylist.bind(this);
     this.search = this.search.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   addTrack(track) {
@@ -52,6 +53,13 @@ class App extends Component {
   search(term) {
     console.log('Search term: ' + term);
     alert('well receveid: ' + term);
+    alert('current state: ' + this.state.searchResults);
+    alert('new search results: ' + Spotify.search(term));
+    this.setState({searchResults: Spotify.search(term)})  ;
+  }
+
+  handleSearch(e) {
+    Spotify.search('michel');
   }
 
   render() {
@@ -64,7 +72,8 @@ class App extends Component {
             <SearchResults searchResults={this.state.searchResults} onAdd={this.addTrack}/>
             <Playlist playlistTracks={this.state.playlistTracks} name={this.state.playlistName} onRemove={this.removeTrack} onNameChange={this.updatePlaylistName} onSave={this.savePlaylist}/>
           </div>
-          <button onClick={Spotify.getAccessToken}>test</button>
+          <button onClick={Spotify.getAccessToken}>test getAccessToken</button>
+          <button onClick={this.handleSearch}> test request to spotify </button>
         </div>
       </div>
     );
