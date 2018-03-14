@@ -7,14 +7,12 @@ export var Spotify = {
   accessToken: '',
   getAccessToken() {
     if (Spotify.accessToken !== '') {
-      alert('Token already existing: ' + Spotify.accessToken);
     } else if (document.URL.match(/access_token=([^&]*)/) !== null) {
         Spotify.accessToken = document.URL.match(/(#access_token[^&]*)/)[0];
         Spotify.accessToken = Spotify.accessToken.substring(14,Spotify.accessToken.length);
         var expiresIn = document.URL.match(/expires_in=([^&]*)/);
         expiresIn = expiresIn[1]
         window.setTimeout(() => Spotify.accessToken = '', expiresIn * 1000);
-        alert('Current token: ' + Spotify.accessToken + ', will expire in ' + expiresIn + 'ms');
         window.history.pushState('Access Token', null, '/');
     } else {
       var urlToGet = 'https://accounts.spotify.com/authorize?'
@@ -53,7 +51,10 @@ export var Spotify = {
             dataArray.push(track);
           });
         }
-        alert(dataArray);
+
+        // alert to show that the function indeed returns an object populated with arrays
+        alert('searchResults: ' + dataArray);
+        
         return dataArray;
       }
     );

@@ -51,11 +51,13 @@ class App extends Component {
   }
 
   search(term) {
-    console.log('Search term: ' + term);
-    alert('well receveid: ' + term);
-    alert('current state: ' + this.state.searchResults);
-    alert('new search results: ' + Spotify.search(term));
-    this.setState({searchResults: Spotify.search(term)})  ;
+    if (Spotify.accessToken === null) {
+      Spotify.getAccessToken;
+    } else {
+      console.log('Search term: ' + term);
+
+      this.setState({searchResults: Spotify.search(term)})  ;
+    }
   }
 
   handleSearch(e) {
