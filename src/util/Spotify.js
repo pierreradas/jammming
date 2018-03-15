@@ -22,6 +22,7 @@ export var Spotify = {
       window.location = urlToGet;
     }
   },
+
   search(term) {
     var targetUrl = 'https://api.spotify.com/v1/search?type=track&q=' + term;
     var result = fetch(
@@ -53,11 +54,10 @@ export var Spotify = {
         }
 
         // alert to show that the function indeed returns an object populated with arrays
-        alert('searchResults: ' + dataArray);
-        
         return dataArray;
       }
     );
+
     return result;
   }
 };

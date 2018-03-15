@@ -50,13 +50,13 @@ class App extends Component {
     alert(trackURIs);
   }
 
-  search(term) {
-    if (Spotify.accessToken === null) {
-      Spotify.getAccessToken;
+  async search(term) {
+    if (Spotify.accessToken === null || Spotify.accessToken === '' ) {
+      Spotify.getAccessToken();
     } else {
       console.log('Search term: ' + term);
-
-      this.setState({searchResults: Spotify.search(term)})  ;
+      Spotify.search(term).then(response => {this.setState({searchResults: response})});
+      //alert(typeof(test));
     }
   }
 
