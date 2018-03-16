@@ -20,6 +20,12 @@ export var Spotify = {
       + '&response_type=token'
       + '&redirect_uri=' + redirect_uri;
       window.location = urlToGet;
+      Spotify.accessToken = document.URL.match(/(#access_token[^&]*)/)[0];
+      Spotify.accessToken = Spotify.accessToken.substring(14,Spotify.accessToken.length);
+      var expiresIn = document.URL.match(/expires_in=([^&]*)/);
+      expiresIn = expiresIn[1]
+      window.setTimeout(() => Spotify.accessToken = '', expiresIn * 1000);
+      window.history.pushState('Access Token', null, '/');
     }
   },
 

@@ -42,15 +42,29 @@ class App extends Component {
     this.setState({playlistName: name});
   }
 
-  savePlaylist() {
-    var trackURIs = [];
-    this.state.playlistTracks.map(element => {
-      trackURIs.push(element.uri);
-    });
-    alert(trackURIs);
+  savePlaylist(playlistName, trackURIs) {
+    if (playlistName === '' || trackURIs.length === 0) {
+      return;
+    } else {
+      var accessToken = Spotify.accessToken;
+      var header = {Authorization: `Bearer ${Spotify.accessToken}`}
+      var userId = '';
+      fetch(
+        'https://api.spotify.com/v1/me', header
+      ).then(
+        response => {
+          return response.json();
+        }
+      ).then(
+        jsonResponse => {
+          alert(Object.getOwnPropertyNames(jsonResponse.error));
+          alert(jsonResponse.status);
+        }
+      )
+    }
   }
 
-  async search(term) {
+  search(term) {
     if (Spotify.accessToken === null || Spotify.accessToken === '' ) {
       Spotify.getAccessToken();
     } else {
