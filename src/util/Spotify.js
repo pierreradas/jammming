@@ -5,8 +5,15 @@ const redirect_uri = 'http://localhost:3000';
 var request = require('request');
 export var Spotify = {
   accessToken: '',
+  userId: '',
+  playlistId: '',
+  trackArray: '',
+
   getAccessToken() {
     if (Spotify.accessToken !== '') {
+      if (Spotify.userId === '') {
+        Spotify.getUserId();
+      }
     } else if (document.URL.match(/access_token=([^&]*)/) !== null) {
         Spotify.accessToken = document.URL.match(/(#access_token[^&]*)/)[0];
         Spotify.accessToken = Spotify.accessToken.substring(14,Spotify.accessToken.length);
@@ -18,7 +25,8 @@ export var Spotify = {
       var urlToGet = 'https://accounts.spotify.com/authorize?'
       + 'client_id=' + client_id
       + '&response_type=token'
-      + '&redirect_uri=' + redirect_uri;
+      + '&redirect_uri=' + redirect_uri
+      + '&scope=' + 'playlist-modify-public';
       window.location = urlToGet;
       Spotify.accessToken = document.URL.match(/(#access_token[^&]*)/)[0];
       Spotify.accessToken = Spotify.accessToken.substring(14,Spotify.accessToken.length);
@@ -58,12 +66,101 @@ export var Spotify = {
             dataArray.push(track);
           });
         }
-
-        // alert to show that the function indeed returns an object populated with arrays
         return dataArray;
       }
     );
 
     return result;
-  }
+  },
+
+  async createPlaylist(playlistName) {
+    // returns id of a newly created playlist
+    if (Spotify.userId === '') {
+      Spotify.getUserId();
+    } else {
+      fetch(
+        `https://api.spotify.com/v1/users/${Spotify.userId}/playlists`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${Spotify.accessToken}`,
+            "Content-Type": 'application/json',
+          },
+          body: JSON.stringify({
+            name: "test"
+          })
+        }
+      ).then(
+          response => {
+            if (response.status !== 200 && response.status !== 201){
+              alert('issue with request: ' + response.status);
+            } else {
+              return response.json();
+            }
+          }
+      ).then(
+        jsonResponse => {
+          Spotify.playlistId = jsonResponse.id;
+          return jsonResponse.id;
+        }
+      );
+    }
+  },
+
+  async playlistAddTracks(trackUris){
+    fetch(
+      `https://api.spotify.com/v1/users/${Spotify.userId}/playlists/${Spotify.playlistId}/tracks`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Spotify.accessToken}`,
+          "Content-Type" : 'aplication/json'
+        },
+        body: JSON.stringify({
+          uris: trackUris
+        })
+      }
+    ).then(
+      response => {
+        if (response.status !== 201){
+          alert('issue with request: ' + response.status);
+        } else {
+          alert('success: ' + response.status);
+
+        }
+      }
+    );
+  },
+
+  getToken() {
+    alert(Spotify.accessToken);
+  },
+
+  getUserId() {
+    // retrieves user id from spotify API
+    var header = {
+      "Authorization": `Bearer ${Spotify.accessToken}`,
+    };
+    fetch(
+      'https://api.spotify.com/v1/me',
+      {
+        method: 'GET',
+        headers: header
+      }
+    ).then(
+        response => {
+          if (response.status !== 200) {
+            alert('issue with your request as request status is ' + response.status);
+          } else {
+            return response.json();
+          }
+        }
+    ).then(
+      jsonResponse => {
+        Spotify.userId = jsonResponse.id;
+        return jsonResponse.id;
+      }
+    );
+  },
+
 };
