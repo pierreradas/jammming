@@ -78,7 +78,7 @@ export var Spotify = {
     if (Spotify.userId === '') {
       Spotify.getUserId();
     } else {
-      fetch(
+      await fetch(
         `https://api.spotify.com/v1/users/${Spotify.userId}/playlists`,
         {
           method: 'POST',

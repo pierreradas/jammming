@@ -64,8 +64,8 @@ class App extends Component {
   async handleSaveTracks() {
     var tracks = [];
     this.state.playlistTracks.map(element => {tracks.push(element.URI)});
-    await Spotify.createPlaylist(this.state.playlistName);
-    Spotify.playlistAddTracks(tracks);
+    var p = await Spotify.createPlaylist(this.state.playlistName);
+    Spotify.playlistAddTracks(tracks).await;
   }
 
   render() {
